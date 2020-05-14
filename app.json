@@ -9,15 +9,21 @@
     "icon": "./assets/icon.png",
     "splash": {
       "image": "./assets/splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "resizeMode": "cover",
+      "backgroundColor": "#fff"
     },
     "updates": {
       "fallbackToCacheTimeout": 0
     },
     "assetBundlePatterns": ["**/*"],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.zipida.lucas.moon",
+      "buildNumber": "1.0.0"
+    },
+    "android": {
+      "package": "com.zipida.lucas.moon",
+      "versionCode": 1
     }
   }
 }
