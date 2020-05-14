@@ -55,7 +55,10 @@ export default function App() {
   const loadTodos = async () => {
     try {
       const oldTodos = await AsyncStorage.getItem("todos");
-      setTodos(JSON.parse(oldTodos));
+      const parsed = JSON.parse(oldTodos);
+      if (parsed) {
+        setTodos(parsed);
+      }
     } catch (e) {
       console.log(e);
     }
@@ -71,24 +74,24 @@ export default function App() {
   };
 
   const unCompletedTodo = (id) => {
-    setTodos((prev) => ({
-      ...prev,
-      [id]: { ...prev[id], isCompleted: false },
-    }));
+    setTodos((prev) => {
+      prev[id].isCompleted = false;
+      return { ...prev };
+    });
   };
 
   const completedTodo = (id) => {
-    setTodos((prev) => ({
-      ...prev,
-      [id]: { ...prev[id], isCompleted: true },
-    }));
+    setTodos((prev) => {
+      prev[id].isCompleted = true;
+      return { ...prev };
+    });
   };
 
   const updateTodo = (id, text) => {
-    setTodos((prev) => ({
-      ...prev,
-      [id]: { ...prev[id], text },
-    }));
+    setTodos((prev) => {
+      prev[id].text = text;
+      return { ...prev };
+    });
   };
 
   const saveTodos = (newTodos) => {
@@ -115,16 +118,18 @@ export default function App() {
           onSubmitEditing={addTodo}
         />
         <ScrollView contentContainerStyle={styles.todos}>
-          {Object.values(todos).map((todo) => (
-            <Todo
-              key={todo.id}
-              onDelete={deleteTodo}
-              onCompleted={completedTodo}
-              onUncompleted={unCompletedTodo}
-              onUpdate={updateTodo}
-              {...todo}
-            />
-          ))}
+          {Object.values(todos)
+            .reverse()
+            .map((todo) => (
+              <Todo
+                key={todo.id}
+                onDelete={deleteTodo}
+                onCompleted={completedTodo}
+                onUncompleted={unCompletedTodo}
+                onUpdate={updateTodo}
+                {...todo}
+              />
+            ))}
         </ScrollView>
       </View>
     </View>
