@@ -7,20 +7,20 @@ import {
   Dimensions,
   TextInput,
 } from "react-native";
+import PropTypes from "prop-types";
 
 const { width, height } = Dimensions.get("window");
 
-const Todo = ({ text }) => {
+const Todo = ({ id, text, onDelete }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [isCompleted, setIsCompleted] = useState(false);
-  const [todoValue, setTodoValue] = useState("");
+  const [todoValue, setTodoValue] = useState(text);
 
   const toggleComplete = () => {
     setIsCompleted(!isCompleted);
   };
 
   const startEditing = () => {
-    setTodoValue(text);
     setIsEditing(true);
   };
 
@@ -79,7 +79,7 @@ const Todo = ({ text }) => {
               <Text style={styles.actionText}>✏️</Text>
             </View>
           </TouchableOpacity>
-          <TouchableOpacity>
+          <TouchableOpacity onPressOut={() => onDelete(id)}>
             <View style={styles.actionContainer}>
               <Text style={styles.actionText}>❌</Text>
             </View>
@@ -88,6 +88,12 @@ const Todo = ({ text }) => {
       )}
     </View>
   );
+};
+
+Todo.propTypes = {
+  text: PropTypes.string.isRequired,
+  isCompleted: PropTypes.bool.isRequired,
+  onDelete: PropTypes.func.isRequired,
 };
 
 const styles = StyleSheet.create({
@@ -124,7 +130,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     width: width / 2,
-    justifyContent: "space-between",
   },
   actions: {
     flexDirection: "row",

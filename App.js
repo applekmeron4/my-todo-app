@@ -10,17 +10,49 @@ import {
   Platform,
 } from "react-native";
 import { AppLoading } from "expo";
+
+import "react-native-get-random-values";
+import { v4 as uuidv4 } from "uuid";
+import { seed } from "./utils/uuid-seed";
+
 import Todo from "./Todo";
 
 const { height, width } = Dimensions.get("window");
 
 export default function App() {
+  const [todos, setTodos] = useState({});
   const [newTodo, setNewTodo] = useState("");
   const [loadedTodos, setLoadedTodos] = useState(false);
 
   useEffect(() => {
     setLoadedTodos(true);
   }, []);
+
+  const addTodo = () => {
+    if (newTodo !== "") {
+      setTodos((prev) => {
+        const ID = uuidv4({ random: seed() });
+        return {
+          ...prev,
+          [ID]: {
+            id: ID,
+            isCompleted: false,
+            text: newTodo,
+            createdAt: Date.now(),
+          },
+        };
+      });
+
+      setNewTodo("");
+    }
+  };
+
+  const deleteTodo = (id) => {
+    setTodos((prev) => {
+      delete prev[id];
+      return { ...prev };
+    });
+  };
 
   if (!loadedTodos) {
     return <AppLoading />;
@@ -39,9 +71,12 @@ export default function App() {
           onChangeText={setNewTodo}
           returnKeyType={"done"}
           autoCorrect={false}
+          onSubmitEditing={addTodo}
         />
         <ScrollView contentContainerStyle={styles.todos}>
-          <Todo text={"Hello I'm a To Do"} />
+          {Object.values(todos).map((todo) => (
+            <Todo key={todo.id} onDelete={deleteTodo} {...todo} />
+          ))}
         </ScrollView>
       </View>
     </View>
