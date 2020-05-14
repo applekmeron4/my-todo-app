@@ -11,21 +11,33 @@ import PropTypes from "prop-types";
 
 const { width, height } = Dimensions.get("window");
 
-const Todo = ({ id, text, onDelete }) => {
+const Todo = ({
+  id,
+  text,
+  isCompleted,
+  onDelete,
+  onCompleted,
+  onUncompleted,
+  onUpdate,
+}) => {
   const [isEditing, setIsEditing] = useState(false);
-  const [isCompleted, setIsCompleted] = useState(false);
   const [todoValue, setTodoValue] = useState(text);
 
-  const toggleComplete = () => {
-    setIsCompleted(!isCompleted);
+  const toggleComplete = (e) => {
+    e.stopPropagation();
+    isCompleted ? onUncompleted(id) : onCompleted(id);
   };
 
-  const startEditing = () => {
+  const startEditing = (e) => {
+    e.stopPropagation();
     setIsEditing(true);
   };
 
-  const finishEditing = () => {
+  const finishEditing = (e) => {
+    e.stopPropagation();
     setIsEditing(false);
+
+    onUpdate(id, todoValue);
   };
 
   return (
@@ -79,7 +91,12 @@ const Todo = ({ id, text, onDelete }) => {
               <Text style={styles.actionText}>✏️</Text>
             </View>
           </TouchableOpacity>
-          <TouchableOpacity onPressOut={() => onDelete(id)}>
+          <TouchableOpacity
+            onPressOut={(e) => {
+              e.stopPropagation();
+              onDelete(id);
+            }}
+          >
             <View style={styles.actionContainer}>
               <Text style={styles.actionText}>❌</Text>
             </View>
@@ -94,6 +111,9 @@ Todo.propTypes = {
   text: PropTypes.string.isRequired,
   isCompleted: PropTypes.bool.isRequired,
   onDelete: PropTypes.func.isRequired,
+  onCompleted: PropTypes.func.isRequired,
+  onUncompleted: PropTypes.func.isRequired,
+  onUpdate: PropTypes.func.isRequired,
 };
 
 const styles = StyleSheet.create({
