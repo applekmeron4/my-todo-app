@@ -8,6 +8,7 @@ import {
   TextInput,
   Dimensions,
   Platform,
+  AsyncStorage,
 } from "react-native";
 import { AppLoading } from "expo";
 
@@ -22,11 +23,15 @@ const { height, width } = Dimensions.get("window");
 export default function App() {
   const [todos, setTodos] = useState({});
   const [newTodo, setNewTodo] = useState("");
-  const [loadedTodos, setLoadedTodos] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
-    setLoadedTodos(true);
+    loadTodos();
   }, []);
+
+  useEffect(() => {
+    saveTodos(todos);
+  }, [todos]);
 
   const addTodo = () => {
     if (newTodo !== "") {
@@ -47,6 +52,17 @@ export default function App() {
     }
   };
 
+  const loadTodos = async () => {
+    try {
+      const oldTodos = await AsyncStorage.getItem("todos");
+      setTodos(JSON.parse(oldTodos));
+    } catch (e) {
+      console.log(e);
+    }
+
+    setIsLoaded(true);
+  };
+
   const deleteTodo = (id) => {
     setTodos((prev) => {
       delete prev[id];
@@ -54,7 +70,32 @@ export default function App() {
     });
   };
 
-  if (!loadedTodos) {
+  const unCompletedTodo = (id) => {
+    setTodos((prev) => ({
+      ...prev,
+      [id]: { ...prev[id], isCompleted: false },
+    }));
+  };
+
+  const completedTodo = (id) => {
+    setTodos((prev) => ({
+      ...prev,
+      [id]: { ...prev[id], isCompleted: true },
+    }));
+  };
+
+  const updateTodo = (id, text) => {
+    setTodos((prev) => ({
+      ...prev,
+      [id]: { ...prev[id], text },
+    }));
+  };
+
+  const saveTodos = (newTodos) => {
+    const savedTodos = AsyncStorage.setItem("todos", JSON.stringify(newTodos));
+  };
+
+  if (!isLoaded) {
     return <AppLoading />;
   }
 
@@ -75,7 +116,14 @@ export default function App() {
         />
         <ScrollView contentContainerStyle={styles.todos}>
           {Object.values(todos).map((todo) => (
-            <Todo key={todo.id} onDelete={deleteTodo} {...todo} />
+            <Todo
+              key={todo.id}
+              onDelete={deleteTodo}
+              onCompleted={completedTodo}
+              onUncompleted={unCompletedTodo}
+              onUpdate={updateTodo}
+              {...todo}
+            />
           ))}
         </ScrollView>
       </View>
